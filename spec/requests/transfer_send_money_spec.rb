@@ -5,8 +5,8 @@ RSpec.describe TransferController, type: :request do
     context 'with valid parameters' do
       let(:user) { create(:user) }
       let(:another_user) { create(:user) }
-      let(:fromAccount) { create(:account, user: user) }
-      let(:toAccount) { create(:account, user: another_user) }
+      let(:fromAccount) { create(:account, user: user, balance: 100.00) }
+      let(:toAccount) { create(:account, user: another_user, balance: 75.00) }
 
       let(:valid_params) do {
         fromAccountId: fromAccount.id,
@@ -26,14 +26,12 @@ RSpec.describe TransferController, type: :request do
         expect(response.body).not_to be_empty
       end
 
-      it 'destination account receives the transfer amount' do
-        skip
-        expect().to change { toAccount.balance }.by(50.00)
+      it 'source account gets the transfer amount deducted' do
+        expect(JSON.parse(response.body)['newSrcBalance']).to eq 50.00
       end
 
-      it 'source account gets the transfer amount deducted' do
-        skip
-        expect(fromAccount.balance).to change { fromAccount.balance }.by(-50.00)
+      it 'destination account receives the transfer amount' do
+        expect(JSON.parse(response.body)['totalDestBalance']).to eq 125.00
       end
     end
   end

@@ -6,30 +6,29 @@ class TransferController < ApplicationController
   end
 
   def send_money
+    create_transactions
+    from_account.decrement!(:balance, amount.to_f)
+    to_account.increment!(:balance, amount.to_f)
+
     render json: {
-      newSrcBalance: 50.00,
-      totalDestBalance: 60.00,
+      newSrcBalance: from_account.balance.to_f,
+      totalDestBalance: to_account.balance.to_f,
       transferedAt: Time.now
     }
   end
 
   def create_transactions
-    Transaction.create({account_id: from_account.id, amount: -amount}
+    Transaction.create({ account_id: from_account.id, amount: -amount }
       .merge(transaction_params))
-    Transaction.create({account_id: to_account.id, amount: amount}
+    Transaction.create({ account_id: to_account.id, amount: amount }
       .merge(transaction_params))
-  end
-
-  def deduct_source_account
-    from_account.balance -= amount
-    from_account.save
   end
 
   private
 
   def transaction_params
-    { 
-      name: "Transfer from Account ID #{from_account.id} to #{to_account.id}",
+    {
+      name: "Transfer from Account ID #{from_account.id} to #{to_account.id}"
     }
   end
 

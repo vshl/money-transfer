@@ -88,5 +88,28 @@ RSpec.describe TransferController, type: :request do
         expect(JSON.parse(response.body)['errorCode']).to eq(-2)
       end
     end
+
+    context 'when user id is the same' do
+      let(:user) { create(:user) }
+      let(:fromAccount) { create(:account, user: user, balance: 520.00) }
+      let(:toAccount) { create(:account, user: user, balance: 780.00) }
+
+      let(:invalid_params) do
+        {
+          fromAccountId: fromAccount.id,
+          toAccountId: toAccount.id,
+          amount: 500.00
+        }
+      end
+
+      before do
+        headers = { 'ACCEPT' => 'application/json' }
+        post '/transfer', params: invalid_params
+      end
+
+      it 'transfer fails if user id is the same' do
+        expect(JSON.parse(response.body)['errorCode']).to eq(-3)
+      end
+    end
   end
 end

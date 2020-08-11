@@ -46,6 +46,12 @@ class TransferController < ApplicationController
       error_messages[:errorMessage] = 'Balance exceeded limit'
       return false
     end
+    if from_account.user.id == to_account.user.id
+      error_messages[:errorCode] = -3
+      error_messages[:errorMessage] = 'Transfer to self is not allowed'
+      return false
+    end
+
     true
   end
 

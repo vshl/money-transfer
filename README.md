@@ -58,6 +58,15 @@ Sample JSON response:
 ## Author
 Vishal Ravi Shankar
 
+## Relevant files
+* app/models/account.rb
+* app/models/user.rb
+* app/controllers/accounts_controller.rb
+* app/controllers/users_controller.rb
+* app/controllers/transactions_controller.rb
+* app/controllers/transfer_controller.rb
+* spec/requests/transfer_send_money_spec.rb
+
 ## Links
 1. rbenv https://github.com/rbenv/rbenv
 2. Bundler https://bundler.io/

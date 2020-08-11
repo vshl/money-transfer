@@ -3,4 +3,5 @@ Rails.application.routes.draw do
   post '/transfer' => 'transfer#send_money'
   resources :users
   resources :accounts
+  resources :transactions
 end

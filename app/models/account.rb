@@ -13,4 +13,10 @@ class Account < ApplicationRecord
   def basic_savings?
     type == 'Accounts::BasicSavingsAccount'
   end
+
+  def insufficient_balance?(amount)
+    return true if balance - amount < 0
+
+    false
+  end
 end

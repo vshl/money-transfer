@@ -34,5 +34,28 @@ RSpec.describe TransferController, type: :request do
         expect(JSON.parse(response.body)['totalDestBalance']).to eq 125.00
       end
     end
+
+    context 'with insufficient account balance' do
+      let(:user) { create(:user) }
+      let(:another_user) { create(:user) }
+      let(:fromAccount) { create(:account, user: user, balance: 30.00) }
+      let(:toAccount) { create(:account, user: another_user, balance: 75.00) }
+
+      let(:invalid_params) do {
+        fromAccountId: fromAccount.id,
+        toAccountId: toAccount.id,
+        amount: 50.00
+      }
+      end
+
+      before do
+        headers = { 'ACCEPT' => 'application/json'}
+        post '/transfer', params: invalid_params
+      end
+
+      it 'transfer fails if source account balance is insufficient' do
+        expect(JSON.parse(response.body)['errorCode']).to eq -1
+      end
+    end
   end
 end

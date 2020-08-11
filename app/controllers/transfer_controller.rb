@@ -6,9 +6,10 @@ class TransferController < ApplicationController
   end
 
   def send_money
+    return render json: @error_messages unless valid_transfer?
+
     create_transactions
-    from_account.decrement!(:balance, amount.to_f)
-    to_account.increment!(:balance, amount.to_f)
+    update_accounts
 
     render json: {
       newSrcBalance: from_account.balance.to_f,
@@ -24,7 +25,24 @@ class TransferController < ApplicationController
       .merge(transaction_params))
   end
 
+  def update_accounts
+    from_account.decrement!(:balance, amount.to_f)
+    to_account.increment!(:balance, amount.to_f)
+  end
+
+  def error_messages
+    @error_messages ||= { errorCode: -1, errorMessage: ''}
+  end
+
   private
+
+  def valid_transfer?
+    if from_account.insufficient_balance?(amount.to_f)
+      error_messages[:errorMessage] = 'Insufficient balance in source account'
+      return false
+    end
+    true
+  end
 
   def transaction_params
     {

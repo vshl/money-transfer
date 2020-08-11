@@ -6,6 +6,7 @@
 * Install bundler `gem install bundler`
 * cd to project root and run `bin/bundle install`
 * Setup database `bin/rails db:setup`
+* Start the web server `bin/rails s`
 
 ## Tests
 

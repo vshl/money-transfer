@@ -8,15 +8,16 @@ RSpec.describe TransferController, type: :request do
       let(:fromAccount) { create(:account, user: user, balance: 100.00) }
       let(:toAccount) { create(:account, user: another_user, balance: 75.00) }
 
-      let(:valid_params) do {
-        fromAccountId: fromAccount.id,
-        toAccountId: toAccount.id,
-        amount: 50.00
-      }
+      let(:valid_params) do
+        {
+          fromAccountId: fromAccount.id,
+          toAccountId: toAccount.id,
+          amount: 50.00
+        }
       end
 
       before do
-        headers = { 'ACCEPT' => 'application/json'}
+        headers = { 'ACCEPT' => 'application/json' }
         post '/transfer', params: valid_params
       end
 
@@ -35,26 +36,56 @@ RSpec.describe TransferController, type: :request do
       end
     end
 
-    context 'with insufficient account balance' do
+    context 'when insufficient account balance' do
       let(:user) { create(:user) }
       let(:another_user) { create(:user) }
       let(:fromAccount) { create(:account, user: user, balance: 30.00) }
       let(:toAccount) { create(:account, user: another_user, balance: 75.00) }
 
-      let(:invalid_params) do {
-        fromAccountId: fromAccount.id,
-        toAccountId: toAccount.id,
-        amount: 50.00
-      }
+      let(:invalid_params) do
+        {
+          fromAccountId: fromAccount.id,
+          toAccountId: toAccount.id,
+          amount: 50.00
+        }
       end
 
       before do
-        headers = { 'ACCEPT' => 'application/json'}
+        headers = { 'ACCEPT' => 'application/json' }
         post '/transfer', params: invalid_params
       end
 
       it 'transfer fails if source account balance is insufficient' do
-        expect(JSON.parse(response.body)['errorCode']).to eq -1
+        expect(JSON.parse(response.body)['errorCode']).to eq(-1)
+      end
+    end
+
+    context 'when BasicSaving account balance exceeds limit' do
+      let(:user) { create(:user) }
+      let(:another_user) { create(:user) }
+      let(:fromAccount) { create(:account, user: user, balance: 1_300.00) }
+      let(:toAccount) do
+        create(
+          :account, user: another_user, balance: 49_980.00,
+                    type: 'Accounts::BasicSavingsAccount'
+        )
+      end
+
+      let(:invalid_params) do
+        {
+          fromAccountId: fromAccount.id,
+          toAccountId: toAccount.id,
+          amount: 500.00
+        }
+      end
+
+      before do
+        headers = { 'ACCEPT' => 'application/json' }
+        post '/transfer', params: invalid_params
+      end
+
+      it 'transfer fails if source account balance is insufficient' do
+        expect(JSON.parse(response.body)['errorCode']).to eq(-2)
       end
     end
   end

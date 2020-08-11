@@ -15,7 +15,13 @@ class Account < ApplicationRecord
   end
 
   def insufficient_balance?(amount)
-    return true if balance - amount < 0
+    return true if (balance - amount).negative?
+
+    false
+  end
+
+  def exceed_limit?(amount)
+    return true if balance + amount > 50_000.00
 
     false
   end

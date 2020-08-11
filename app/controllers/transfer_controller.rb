@@ -31,7 +31,7 @@ class TransferController < ApplicationController
   end
 
   def error_messages
-    @error_messages ||= { errorCode: -1, errorMessage: ''}
+    @error_messages ||= { errorCode: -1, errorMessage: '' }
   end
 
   private
@@ -39,6 +39,11 @@ class TransferController < ApplicationController
   def valid_transfer?
     if from_account.insufficient_balance?(amount.to_f)
       error_messages[:errorMessage] = 'Insufficient balance in source account'
+      return false
+    end
+    if to_account.basic_savings? && to_account.exceed_limit?(amount.to_f)
+      error_messages[:errorCode] = -2
+      error_messages[:errorMessage] = 'Balance exceeded limit'
       return false
     end
     true
